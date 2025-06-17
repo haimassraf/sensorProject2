@@ -6,61 +6,55 @@ using System.Threading.Tasks;
 
 namespace sensorProject2
 {
-    internal class IranianAgent
+    abstract class IranianAgent
     {
-        private string name;
-        private List<Sensor> weaknesses;
-        private List<Sensor> attachSensor;
+        public string Name { get; set; }
+        public string Rank { get; set; }
+        public List<Sensor> AttachedSensors;
+        public Dictionary<Sensor, bool> Weaknesses;
 
-        public string GetName() => this.name;
-        public List<Sensor> GetWeaknesses() => this.weaknesses;
-        public List<Sensor> GetAttachSensor() => this.attachSensor;
-
-        public void AttachSensor(Sensor attachedSensor)
+        public void AttachSensor(Sensor sensor)
         {
-            if (this.attachSensor.Count < 2)
-            {
-                this.attachSensor.Add(attachedSensor);
-                attachedSensor.Active();
-            }
-            else
-            {
-                Console.WriteLine("You already attach 2 sensors.");
-            }
+            AttachedSensors.Add(sensor);
+            Console.WriteLine($"Sensor {sensor.GetName()} attached.");
         }
-
-        public int CheckSensors()
+        public void Hit()
         {
-            int currectSensors = 0;
-            if (weaknesses.Count == 2 && attachSensor.Count == 2)
+            foreach (Sensor attachedSensor in AttachedSensors)
             {
-                for (int i = 0; i < 2; i++)
+                if (Weaknesses.ContainsKey(attachedSensor) && !Weaknesses[attachedSensor])
                 {
-                    if (this.weaknesses[i] == this.attachSensor[i])
-                    {
-                        currectSensors++;
-                    }
+                    Weaknesses[attachedSensor] = true;
                 }
             }
-            else
+        }
+
+        public int CountOfHit()
+        {
+            int count = 0;
+            foreach (KeyValuePair<Sensor, bool> weaknessesSensors in Weaknesses)
             {
-                Console.WriteLine("You need to enter 2 attached sensor first.");
+                if (weaknessesSensors.Value)
+                {
+                    count++;
+                }
             }
-            return currectSensors;
+            return count;
         }
 
-        public bool IsExposed() => CheckSensors() == 2;
-
-        public void ResetSensors()
+        public bool IsExposed()
         {
-            this.attachSensor = new List<Sensor>();
-            Console.WriteLine("The attached sensors reset.");
-        }
-
-        public IranianAgent(string name, List<Sensor> weaknesses)
-        {
-            this.name = name;
-            this.weaknesses = weaknesses;
+            return !Weaknesses.ContainsValue(false);
         }
     }
+
+    public class JuniorAgent : IranianAgent
+    {
+        public JuniorAgent(string name, string rank)
+        {
+            Name = name;
+            Rank = rank;
+        }
+    }
+
 }

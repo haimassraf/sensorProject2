@@ -8,15 +8,37 @@ namespace sensorProject2
 {
     internal class Sensor
     {
-        private string name;
-        public string GetName() => this.name;
-        public Sensor(string name)
+        public interface ISensor
         {
-            this.name = name;
+            void Activate();
+            string GetName();
         }
-        public void Active()
+        public class Termal : ISensor
         {
-            Console.WriteLine($"Sensor {name} is in active.");
+            private string Name;
+            public string GetName() => this.Name;
+            public void Activate()
+            {
+                Console.WriteLine("The sensor Termal is activate.");
+            }
+
+            public Termal(string name)
+            {
+                Name = name;
+            }
+        }
+        public class Movement : ISensor
+        {
+            public string Name;
+            public string GetName() => this.Name;
+            public void Activate()
+            {
+                Console.WriteLine("The sensor Movment is activate.");
+            }
+            public Movement(string name)
+            {
+                Name = name;
+            }
         }
     }
 }
