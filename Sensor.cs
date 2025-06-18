@@ -1,40 +1,32 @@
 ﻿using System;
 
-namespace sensorProject2
+namespace Sensor
 {
-    internal class Sensor
+    public interface ISensor
     {
-        public interface ISensor
-        {
-            void Activate();
-            string GetName();
-        }
+        void Activate();
+        string GetName();
     }
-    public class Termal : Sensor.ISensor
+
+    public class Termal : ISensor
     {
         private string Name;
+        public Termal(string name) => Name = name;
         public string GetName() => this.Name;
         public void Activate()
         {
-            Console.WriteLine("The sensor Termal is activate.");
-        }
-
-        public Termal(string name)
-        {
-            Name = name;
+            Console.WriteLine("The Thermal sensor is activated.");
         }
     }
-    public class Movement : Sensor.ISensor
+
+    public class Movement : ISensor
     {
-        public string Name;
+        private string Name;
+        public Movement(string name) => Name = name;
         public string GetName() => this.Name;
         public void Activate()
         {
-            Console.WriteLine("The sensor Movment is activate.");
-        }
-        public Movement(string name)
-        {
-            Name = name;
+            Console.WriteLine("The Movement sensor is activated.");
         }
     }
 }

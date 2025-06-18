@@ -1,27 +1,39 @@
-﻿using System;
+﻿using Sensor;
 using System.Collections.Generic;
+using System;
+
 namespace sensorProject2
 {
-    abstract class IranianAgent
+    public abstract class IranianAgent
     {
-        public string Name { get; set; }
-        public string Rank { get; set; }
-        public List<Sensor.ISensor> AttachedSensors;
-        public Dictionary<Sensor.ISensor, bool> Weaknesses;
+        protected string Name;
+        protected string Rank;
+        public List<ISensor> AttachedSensors { get; set; }
+        public Dictionary<string, bool> Weaknesses { get; set; }
 
-        public void AttachSensor(Sensor.ISensor sensor)
+        public IranianAgent()
+        {
+            AttachedSensors = new List<ISensor>();
+            Weaknesses = new Dictionary<string, bool>();
+        }
+
+        public virtual string GetName() => this.Name;
+
+        public void AttachSensor(ISensor sensor)
         {
             AttachedSensors.Add(sensor);
             Console.WriteLine($"Sensor {sensor.GetName()} attached.");
         }
+
         public void Hit()
         {
-            foreach (Sensor.ISensor attachedSensor in AttachedSensors)
+            foreach (ISensor attachedSensor in AttachedSensors)
             {
-                if (Weaknesses.ContainsKey(attachedSensor) && !Weaknesses[attachedSensor])
+                if (Weaknesses.ContainsKey(attachedSensor.GetName()) && !Weaknesses[attachedSensor.GetName()])
                 {
-                    Weaknesses[attachedSensor] = true;
-                    Console.WriteLine($"The agent hit sucssesfully!");
+                    Weaknesses[attachedSensor.GetName()] = true;
+                    Console.WriteLine("The agent hit successfully!");
+                    //breake?
                 }
             }
         }
@@ -29,9 +41,9 @@ namespace sensorProject2
         public int CountOfHits()
         {
             int count = 0;
-            foreach (KeyValuePair<Sensor.ISensor, bool> weaknessesSensors in Weaknesses)
+            foreach (bool isExposed in Weaknesses.Values)
             {
-                if (weaknessesSensors.Value)
+                if (isExposed)
                 {
                     count++;
                 }
@@ -41,39 +53,43 @@ namespace sensorProject2
 
         public bool IsExposed()
         {
-            return !Weaknesses.ContainsValue(false);
+            const bool IsExist = false;
+            return !Weaknesses.ContainsValue(IsExist);
         }
 
-        public Dictionary<Sensor.ISensor, bool> GenerateRandomWeaknesses(List<Sensor.ISensor> possibleSensors, int count)
+        protected Dictionary<string, bool> GenerateRandomWeaknesses(List<ISensor> possibleSensors, int count)
         {
             var rnd = new Random();
-            var result = new Dictionary<Sensor.ISensor, bool>();
-
-            var selected = new HashSet<int>();
+            var result = new Dictionary<string, bool>();
+            var selectedIndices = new List<int>();
 
             while (result.Count < count && result.Count < possibleSensors.Count)
             {
                 int index = rnd.Next(possibleSensors.Count);
-                if (!selected.Contains(index))
+                if (!selectedIndices.Contains(index))
                 {
-                    selected.Add(index);
-                    result[possibleSensors[index]] = false;
+                    selectedIndices.Add(index);
+                    const bool value = false;
+                    result[possibleSensors[index].GetName()] = value;
                 }
             }
-
             return result;
         }
     }
 
     public class JuniorAgent : IranianAgent
     {
-        public JuniorAgent(string name, string rank)
+        public JuniorAgent(string name)
         {
             Name = name;
-            Rank = rank;
-            AttachedSensors = new List<Sensor.ISensor>();
-            Weaknesses = GenerateRandomWeaknesses(new List<Sensor.ISensor> { new Termal("Termal"), new Movement("Movement") }, 2);
+            Rank = "Junior";
+            List<ISensor> potentialWeaknesses = new List<ISensor>
+            {
+                new Termal("Thermal"),
+                new Movement("Movement")
+            };
+            const int NumberOfWeaknesses = 2;
+            Weaknesses = GenerateRandomWeaknesses(potentialWeaknesses, NumberOfWeaknesses);
         }
     }
-
 }
